@@ -1,0 +1,375 @@
+ 
+ 1          OPTIONS NONOTES NOSTIMER NOSOURCE NOSYNTAXCHECK;
+ NOTE: ODS statements in the SAS Studio environment may disable some output features.
+ 73         
+ 74         Proc Format;
+ 75         Value GENDERFT          1 = "MALE"
+ 76                                 2 = "FEMALE"
+ 77                                 Other  = "MISCODED";
+ NOTE: Format GENDERFT is already on the library WORK.FORMATS.
+ NOTE: Format GENDERFT has been output.
+ 78         
+ 79         Value  $SESFT"L"="LOW"
+ 80         "M"="MEDIUM"
+ 81         "H"="HIGH";
+ NOTE: Format $SESFT is already on the library WORK.FORMATS.
+ NOTE: Format $SESFT has been output.
+ 82         
+ 83         Value AGEFT  LOW-20 = "20 YEARS OLD AND YOUNGER"
+ 84                         21-40 = "BETWEEN 21 AND 40 YEARS OLD"
+ 85                                 41-HIGH = "41 YEARS OLD AND OLDER";
+ NOTE: Format AGEFT is already on the library WORK.FORMATS.
+ NOTE: Format AGEFT has been output.
+ 86         
+ 87         Run;
+ 
+ NOTE: PROCEDURE FORMAT used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 88         
+ 89         Data HEALTHCARE_DRUGS;
+ 90         LENGTH COST$ 12;
+ 91         INPUT ID$ GENDER SES$ DRUG$ AGE;
+ 92         
+ 93         FORMAT GENDER GENDERFT.
+ 94         SES$ SESFT.;
+ 95         LABEL SES ="SOCIALECONOMICS" DRUG="DRUG GROUP" AGE = "AGE OF THE SUBJECT";
+ 96         
+ 97         IF UPCASE(DRUG)= "A" OR UPCASE(DRUG)= "B" OR UPCASE(DRUG)= "C" OR UPCASE(DRUG)= "F" THEN COST="GENERIC";
+ 98         IF UPCASE(DRUG)= "D" OR UPCASE(DRUG)= "E" OR UPCASE(DRUG)= "G" OR UPCASE(DRUG)= "H" THEN COST="PREMIUN";
+ 99         IF COST="" THEN COST="MISCODED";
+ 100        
+ 101        DATALINES;
+ 
+ NOTE: The data set WORK.HEALTHCARE_DRUGS has 10 observations and 6 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.01 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 112        ;
+ 113        
+ 114        PROC PRINT DATA= HEALTHCARE_DRUGS NOOBS;
+ 115        RUN;
+ 
+ NOTE: There were 10 observations read from the data set WORK.HEALTHCARE_DRUGS.
+ NOTE: PROCEDURE PRINT used (Total process time):
+       real time           0.04 seconds
+       cpu time            0.04 seconds
+       
+ 
+ 116        PROC SORT DATA=HEALTHCARE_DRUGS;
+ 117        BY AGE;
+ 
+ NOTE: There were 10 observations read from the data set WORK.HEALTHCARE_DRUGS.
+ NOTE: The data set WORK.HEALTHCARE_DRUGS has 10 observations and 6 variables.
+ NOTE: PROCEDURE SORT used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.01 seconds
+       
+ 
+ 118        PROC FREQ DATA = HEALTHCARE_DRUGS;
+ 119        TABLES (SES COST )*AGE AGE;
+ 120        FORMAT AGE AGEFT.;
+ 121        Run;
+ 
+ NOTE: There were 10 observations read from the data set WORK.HEALTHCARE_DRUGS.
+ NOTE: PROCEDURE FREQ used (Total process time):
+       real time           0.10 seconds
+       cpu time            0.09 seconds
+       
+ 
+ 122        
+ 123        
+ 124        PROC FORMAT;
+ 125        /*Sell Item*/
+ 126        Value AFT 0="No"
+ 127        1="Yes";
+ NOTE: Format AFT has been output.
+ 128        Value BFT  0="No"
+ 129        1="Yes";
+ NOTE: Format BFT has been output.
+ 130        Value CFT  0="No"
+ 131        1="Yes";
+ NOTE: Format CFT has been output.
+ 132        Value DFT 0="No"
+ 133        1="Yes";
+ NOTE: Format DFT has been output.
+ 134        Value EFT 0="No"
+ 135        1="Yes";
+ NOTE: Format EFT has been output.
+ 136        Value FFT 0="No"
+ 137        1="Yes";
+ NOTE: Format FFT has been output.
+ 138        
+ 139        Value GFT  /*restaurant services*/
+ 140        0= "No restaurant"
+ 141        1 = "Carry out"
+ 142        2 = "Dine In";
+ NOTE: Format GFT has been output.
+ 143        
+ 144        Value SICFT /*tax code type of store*/
+ 145        52 = "Hardware"
+ 146        53 = "General Merchandise"
+ 147        54 = "Grocery"
+ 148        56 = "Apparel"
+ 149        57 = "Furniture"
+ 150        59 = "Electronics";
+ NOTE: Format SICFT has been output.
+ 151        
+ 152        RUN;
+ 
+ NOTE: PROCEDURE FORMAT used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 153        
+ 154        DATA URBAND;
+ 155        
+ 
+ NOTE: The data set WORK.URBAND has 1 observations and 0 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 156        PROC IMPORT OUT=URBAND DATAFILE= "/folders/myfolders/data/UrbanDevelopment.xls"
+ 157        DBMS=XLS replace;
+ 158        SHEET="Sheet1";
+ 159            GETNAMES=yes;
+ 160        FORMAT A AFT. B BFT. C CFT. D DFT. E EFT. F FFT. G GFT. SIC SICFT.;
+ 
+ NOTE: One or more variables were converted because the data type is not supported by the V9 engine. For more details, run with 
+       options MSGLEVEL=I.
+ NOTE: The import data set has 132 observations and 12 variables.
+ NOTE: WORK.URBAND data set was successfully created.
+ NOTE: PROCEDURE IMPORT used (Total process time):
+       real time           0.16 seconds
+       cpu time            0.01 seconds
+       
+ 
+ 161        PROC PRINT DATA=URBAND;
+ 162        RUN;
+ 
+ NOTE: There were 132 observations read from the data set WORK.URBAND.
+ NOTE: PROCEDURE PRINT used (Total process time):
+       real time           0.35 seconds
+       cpu time            0.32 seconds
+       
+ 
+ 163        
+ 164        
+ 165        DATA URBAN_DEVELOP;
+ 166        SET WORK.URBAND;
+ 167        SALES_X_SQF = (SALES)/(SQF);
+ 168        /* LABELS type of items they sell*/
+ 169        LABEL A="Hardware" B="Grocery" C="General Merchandise" D="Furniture"
+ 170        E="Electronics"
+ 171        F="Video and Music"
+ 172        G="Restaurant Services"
+ 173        YIB="Years in Business"
+ 174        SQF="Square Footage"
+ 175        SIC="Standard Industrial Classification";
+ 176        
+ 177        IF CHAR(ID,1) = "A" THEN ZIPCODE = 60612;
+ 178        ELSE IF CHAR(ID,1) = "B" THEN ZIPCODE = 60622;
+ 179        ELSE IF CHAR(ID,1) = "C" THEN ZIPCODE = 60624;
+ 180        ELSE IF CHAR(ID,1) = "D" THEN ZIPCODE = 60634;
+ 181        ELSE IF CHAR(ID,1) = "E" THEN ZIPCODE = 60639;
+ 182        
+ 
+ NOTE: There were 132 observations read from the data set WORK.URBAND.
+ NOTE: The data set WORK.URBAN_DEVELOP has 132 observations and 14 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.01 seconds
+       
+ 
+ 183        PROC SORT DATA=URBAN_DEVELOP;
+ 184        BY ZIPCODE;
+ 
+ NOTE: There were 132 observations read from the data set WORK.URBAN_DEVELOP.
+ NOTE: The data set WORK.URBAN_DEVELOP has 132 observations and 14 variables.
+ NOTE: PROCEDURE SORT used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 185        PROC FREQ DATA= URBAN_DEVELOP;
+ 186        TABLES ZIPCODE*(SIC A -- G);
+ 187        TABLES SIC*ZIPCODE/CHISQ;*Chi-square test on type of store (SIC)per zip codes;
+ 
+ NOTE: There were 132 observations read from the data set WORK.URBAN_DEVELOP.
+ NOTE: PROCEDURE FREQ used (Total process time):
+       real time           0.47 seconds
+       cpu time            0.38 seconds
+       
+ 
+ 188        PROC MEANS DATA= URBAN_DEVELOP MEAN STD MEDIAN QRANGE;
+ 189        BY ZIPCODE;
+ 190        VAR YIB SALES SALES_X_SQF;
+ 191        RUN;
+ 
+ NOTE: There were 132 observations read from the data set WORK.URBAN_DEVELOP.
+ NOTE: PROCEDURE MEANS used (Total process time):
+       real time           0.17 seconds
+       cpu time            0.09 seconds
+       
+ 
+ 192        
+ 193        /*
+ 194        Do any of the zip codes appear to be food deserts and why?
+ 195        From the tables  we can see that zipcode 60612 may be a food desert , if we compare
+ 196        the frequency in table B and SIC for this zipcode we can see what may be a significance
+ 197        difference compare with other zipcodes.
+ 198        
+ 199        (i) Compare the years in business variable between the zip codes.
+ 200        Does there seem to be an a zip code that is more or less stable.
+ 201        Looking at the standard deviation of the mean table we can see
+ 202        that zipcode 60634 as an smaller standard deviation meaning that businesses in that
+ 203        zipcode dont change that frequently.
+ 204        
+ 205        (ii) Compare the mean sales. Does one zip code look like it generates
+ 206        more or less sales than other zip codes.
+ 207        Looking at the sales per square feet and overall sales we can see that zipcode
+ 208        60634 generates more revenues than the others.
+ 209        Do these trends (if any exist) persist with sales per square feet.
+ 210        The same conditions persist for sales per square feet with the only variation that for
+ 211        zipcode 60622 the spread is larger(IQR) meaning that there is a greater variation
+ 212        in the sales per square feet for zipcode 60622.
+ 213        
+ 214        (i) State the Null and Alternative Hypothesis determine whether there is a
+ 215        significant relationship between store (SIC) and zip codes.
+ 216        *****Null Hypothesis (Ho)*****
+ 217        There is no difference, association or dependency
+ 218        between the type of store (SIC) and the zipcode.
+ 219        *****Alternative Hypothesis (H1)****
+ 220        There is a coorelation between the type of store and the zipcode. 
+ 221        
+ 222        (ii) State the test statistic, the p-value and your conclusion.
+ 223        To answer our hypothesis we can look at the Chi-Square, to find that the
+ 224        chi-square test statistic value is 14.3027 and the associated p-value is 0.8148.
+ 225        As  chi-squared is larger than the 0.05 (critical point) we have to reject the null
+ 226        hypothesis and conclude that there is a correlation between the zipcode and SIC.
+ 227        
+ 228        (iii) Why might the Chi-Square test of independence not be the best hypothesis test?
+ 229        SAS give us a WARNING: 70% of the cells have expected counts less than 5. Chi-Square may not be a valid test.
+ 230        In this cases it is better to use the Fisher’s Exact Test taking in count that we need a 2X2 table
+ 231        where that makes and association between the row and column variables. This test assumes that
+ 232        the row and column totals are fixed, and then uses the hypergeometric distribution to compute
+ 233        probabilities of possible tables conditional on the observed row and column totals. Fisher’s exact
+ 234        test does not depend on any large-sample distribution assumptions, and so it is appropriate
+ 235        even for small sample sizes and for sparse tables.
+ 236        */
+ 237        
+ 238        /*--Set output size--*/
+ 239        ods graphics / reset width=6.4in height=4.8in imagemap;
+ 240        
+ 241        /*--SGPLOT proc statement--*/
+ 242        proc sgplot data=WORK.URBAN_DEVELOP noautolegend;
+ 243            /*--TITLE and FOOTNOTE--*/
+ 244            title "Sales vs Square Feet";
+ 245        
+ 246            /*--Scatter plot settings--*/
+ 247            scatter x=SqF y=Sales / group=ZIPCODE markerattrs=(symbol=CircleFilled
+ 248                size=15) transparency=0.4 name='Scatter';
+ 249            ;
+ 250        
+ 251            /*--X Axis--*/
+ 252            xaxis grid;
+ 253        
+ 254            /*--Y Axis--*/
+ 255            yaxis grid;
+ 256        
+ 257            /*--Legend Settings--*/
+ 258            keylegend 'Scatter' / title='ZIPCODE:' location=Outside;
+ 259        run;
+ 
+ NOTE: PROCEDURE SGPLOT used (Total process time):
+       real time           14.46 seconds
+       cpu time            0.17 seconds
+       
+ NOTE: There were 132 observations read from the data set WORK.URBAN_DEVELOP.
+ 
+ 260        
+ 261        /*
+ 262        
+ 263        Does there appear to be a trend in this?
+ 264        It seems like as the square footage increse sales increase, in the five different
+ 265        zipcodes.
+ 266        */
+ 267        
+ 268        DATA CRIME;
+ 269        
+ 270        INPUT CRIME$ ALCOHOL$  COUNT;
+ 271        
+ 272        DATALINES;
+ 
+ NOTE: The data set WORK.CRIME has 12 observations and 3 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 285        ;
+ 286        
+ 287        PROC FREQ DATA=CRIME ORDER=DATA;
+ 288        TABLES CRIME*ALCOHOL /CHISQ DEVIATION EXPECTED;
+ 289        WEIGHT COUNT;
+ 290        RUN;
+ 
+ NOTE: There were 12 observations read from the data set WORK.CRIME.
+ NOTE: PROCEDURE FREQ used (Total process time):
+       real time           0.17 seconds
+       cpu time            0.14 seconds
+       
+ 
+ 291        
+ 292        /*
+ 293        b. State the Null and Alternative Hypothesis for the Chi-Square test
+ 294        
+ 295        *****Null Hypothesis (Ho)*****
+ 296        There is no difference, association or dependency
+ 297        between types of crimes and consumption of alcohol.
+ 298        
+ 299        *****Alternative Hypothesis (H1)*****
+ 300        There is a coorelation between the consume of alcohol and the type of crime.
+ 301        
+ 302        c. State the conclusion a 95% confidence level. Include the test statistic
+ 303        and p-value in your conclusion.
+ 304        The chi-square test statistic value is 49.7306 p-value is less than 0.0001 meaning
+ 305        that with a 95% confidence we can say that there is not a correlation between the
+ 306        consumption of alcohol and the type of crime commited that can be determine from this
+ 307        sample.
+ 308        
+ 309        d. Based on this data, does it appear that drinkers are more likely to commit crimes?
+ 310        Justify your answer. Look for anything unusual in the output.
+ 311        From this data we cant infer that drinkers are more likely to commit crimes and we
+ 312        can see an outlier in the fraud crimes where 10.10% were committed by a non-drinker
+ 313        and just 4.42% by a drinker at of 14.52%
+ 314        
+ 315        OPTIONS NONOTES NOSTIMER NOSOURCE NOSYNTAXCHECK;
+ 316        ODS HTML CLOSE;
+ 317        &GRAPHTERM; ;*';*";*/;RUN;QUIT;
+ 318        QUIT;RUN;
+ 319        ODS HTML5 (ID=WEB) CLOSE;
+ 320        
+ 321        ODS RTF (ID=WEB) CLOSE;
+ 322        ODS PDF (ID=WEB) CLOSE;
+ NOTE: ODS PDF(WEB) printed 15 pages to /tmp/SAS_work05B700000970_localhost.localdomain/#LN00044.
+ 323        FILENAME _GSFNAME;
+ NOTE: Fileref _GSFNAME has been deassigned.
+ 324        DATA _NULL_;
+ 325        RUN;
+ 
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 326        OPTIONS VALIDMEMNAME=COMPAT;
+ 327        OPTIONS NOTES STIMER SOURCE SYNTAXCHECK;
+ 328        
