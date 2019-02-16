@@ -1,0 +1,227 @@
+ 
+ 1          OPTIONS NONOTES NOSTIMER NOSOURCE NOSYNTAXCHECK;
+ 72         
+ 73         /*********************Program_2_1a_**************************/
+ 74         DATA PATIENT;
+ 75         INPUT @1 ID$ 3. @4 GENDER$ 1. @5 RACE$ 1. @6 AGE 2.;
+ 76         
+ 77         DATALINES;
+ 
+ NOTE: The data set WORK.PATIENT has 10 observations and 4 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.01 seconds
+       
+ 
+ 88         ;
+ 89         
+ 90         PROC SORT DATA=PATIENT;
+ 91         BY RACE;
+ 
+ NOTE: There were 10 observations read from the data set WORK.PATIENT.
+ NOTE: The data set WORK.PATIENT has 10 observations and 4 variables.
+ NOTE: PROCEDURE SORT used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.01 seconds
+       
+ 
+ 92         PROC PRINT DATA=PATIENT;
+ 93         TITLE "PATIENT";
+ 94         RUN;
+ 
+ NOTE: There were 10 observations read from the data set WORK.PATIENT.
+ NOTE: PROCEDURE PRINT used (Total process time):
+       real time           0.14 seconds
+       cpu time            0.13 seconds
+       
+ 
+ 95         
+ 96         /*********************Program_2_1b_**************************/
+ 97         DATA PATIENT_VITALS;
+ 98         INPUT @1 ID$ 3. @4 HR 3. @7 SBP 3. @10 DBP 3. @13 N_PROC 2.;
+ 99         AVE_BP=DBP+(1/3)*(SBP-DBP);
+ 100        DATALINES;
+ 
+ NOTE: Missing values were generated as a result of performing an operation on missing values.
+       Each place is given by: (Number of times) at (Line):(Column).
+       1 at 99:22   
+ NOTE: The data set WORK.PATIENT_VITALS has 10 observations and 6 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 111        ;
+ 112        PROC MEANS  DATA=PATIENT_VITALS MEAN STD CLM MEDIAN NMISS;
+ 113        VAR SBP DBP AVE_BP;
+ 114        RUN;
+ 
+ NOTE: There were 10 observations read from the data set WORK.PATIENT_VITALS.
+ NOTE: PROCEDURE MEANS used (Total process time):
+       real time           0.10 seconds
+       cpu time            0.09 seconds
+       
+ 
+ 115        
+ 116        /*********************Program_2_1c_**************************/
+ 117        DATA MERGE_P_PV;
+ 118        MERGE PATIENT PATIENT_VITALS;
+ 
+ NOTE: There were 10 observations read from the data set WORK.PATIENT.
+ NOTE: There were 10 observations read from the data set WORK.PATIENT_VITALS.
+ NOTE: The data set WORK.MERGE_P_PV has 10 observations and 9 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.01 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 119        PROC BOXPLOT DATA=MERGE_P_PV;
+ 120        PLOT HR*RACE;
+ 121        RUN;
+ 
+ NOTE: Processing beginning for PLOT statement number 1.
+ NOTE: There were 10 observations read from the data set WORK.MERGE_P_PV.
+ NOTE: PROCEDURE BOXPLOT used (Total process time):
+       real time           0.83 seconds
+       cpu time            0.33 seconds
+       
+ 
+ 122        
+ 123        /*********************Program_2_2a_**************************/
+ 124        DATA CHIWEATHER;
+ 
+ NOTE: The data set WORK.CHIWEATHER has 1 observations and 0 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.01 seconds
+       
+ 
+ 125        PROC IMPORT OUT=WORK.WEATHER DATAFILE="/folders/myfolders/data/Weather.xls" DBMS=xls replace;
+ 126        Sheet="Sheet 1";
+ 127            Getnames=yes;
+ 128        RUN;
+ 
+ NOTE:    Variable Name Change.  Mean Sea Level PressureIn -> Mean_Sea_Level_PressureIn       
+ NOTE:    Variable Name Change.  Min Sea Level PressureIn -> Min_Sea_Level_PressureIn        
+ NOTE:    Variable Name Change.  Max VisibilityMiles -> Max_VisibilityMiles             
+ NOTE:    Variable Name Change.  Mean VisibilityMiles -> Mean_VisibilityMiles            
+ NOTE:    Variable Name Change.  Min VisibilityMiles -> Min_VisibilityMiles             
+ NOTE: One or more variables were converted because the data type is not supported by the V9 engine. For more details, run with 
+       options MSGLEVEL=I.
+ NOTE: The import data set has 4289 observations and 26 variables.
+ NOTE: WORK.WEATHER data set was successfully created.
+ NOTE: PROCEDURE IMPORT used (Total process time):
+       real time           0.37 seconds
+       cpu time            0.20 seconds
+       
+ 
+ 129        PROC MEANS DATA=WORK.WEATHER MEAN STD VAR CLM;
+ 130        VAR MaxTemperatureF MeanTemperatureF MinTemperatureF;
+ 131        TITLE "MAX, MEAN AND MIN TEMPERATURE FOR CHICAGO";
+ 132        RUN;
+ 
+ NOTE: There were 4289 observations read from the data set WORK.WEATHER.
+ NOTE: PROCEDURE MEANS used (Total process time):
+       real time           0.08 seconds
+       cpu time            0.08 seconds
+       
+ 
+ 133        
+ 134        /*********************Program_2_2b_**************************/
+ 135        DATA WINTER;
+ 136        SET WORK.WEATHER;
+ 137        WHERE MONTH = "DEC" OR MONTH="JAN" OR MONTH="FEB";
+ 
+ NOTE: There were 1076 observations read from the data set WORK.WEATHER.
+       WHERE MONTH in ('DEC', 'FEB', 'JAN');
+ NOTE: The data set WORK.WINTER has 1076 observations and 26 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.01 seconds
+       
+ 
+ 138        PROC SORT DATA=WINTER;
+ 139        BY MONTH;
+ 
+ NOTE: There were 1076 observations read from the data set WORK.WINTER.
+ NOTE: The data set WORK.WINTER has 1076 observations and 26 variables.
+ NOTE: PROCEDURE SORT used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.01 seconds
+       
+ 
+ 140        PROC MEANS DATA=WINTER MEAN STD CLM;
+ 141        VAR MeanTemperatureF;
+ 142        TITLE "CHICAGO WINTER";
+ 143        RUN;
+ 
+ NOTE: There were 1076 observations read from the data set WORK.WINTER.
+ NOTE: PROCEDURE MEANS used (Total process time):
+       real time           0.05 seconds
+       cpu time            0.04 seconds
+       
+ 
+ 144        
+ 145        /*********************Program_2_2c_**************************/
+ 146        DATA WEATHER_HISTOGRAMS;
+ 
+ NOTE: The data set WORK.WEATHER_HISTOGRAMS has 1 observations and 0 variables.
+ NOTE: DATA statement used (Total process time):
+       real time           0.00 seconds
+       cpu time            0.00 seconds
+       
+ 
+ 147        Proc Univariate Data = WORK.WEATHER NOPRINT;
+ 148        Title "MEAN WIND SPEED MPH";
+ 149           histogram MeanWindSpeedMPH /NORMAL;
+ 150           inset  skewness = "Skew" (4.3)
+ 151         Kurtosis = "Kurtosis" (4.3)
+ 152        mean = "Mean" (4.3)
+ 153        std="Std Dev" (4.3)/ 
+ 154        Pos = NE
+ 155        Height = 4;
+ 156        Run;
+ 
+ NOTE: At least one W.D format was too small for the number to be printed. The decimal may be shifted by the "BEST" format.
+ NOTE: PROCEDURE UNIVARIATE used (Total process time):
+       real time           1.67 seconds
+       cpu time            0.49 seconds
+       
+ 
+ 157        Proc Univariate Data = WORK.WEATHER NOPRINT;
+ 158        Title "MAX WIND SPEED MPH";
+ 159           histogram MaxWindSpeedMPH /NORMAL;
+ 160           inset  skewness = "Skew" (4.3)
+ 161         Kurtosis = "Kurtosis" (4.3)
+ 162        mean = "Mean" (4.3)
+ 163        std="Std Dev" (4.3)/ 
+ 164        Pos = NE
+ 165        Height = 4;
+ 166        Run;
+ 
+ NOTE: At least one W.D format was too small for the number to be printed. The decimal may be shifted by the "BEST" format.
+ NOTE: PROCEDURE UNIVARIATE used (Total process time):
+       real time           1.72 seconds
+       cpu time            0.39 seconds
+       
+ 
+ 167        Proc Univariate Data = WORK.WEATHER NOPRINT;
+ 168        Title "MAX GUST SPEED MPH";
+ 169           histogram MaxGustSpeedMPH /NORMAL;
+ 170           inset  skewness = "Skew" (4.3)
+ 171         Kurtosis = "Kurtosis" (4.3)
+ 172        mean = "Mean" (4.3)
+ 173        std="Std Dev" (4.3)/ 
+ 174        Pos = NE
+ 175        Height = 4;
+ 176        Run;
+ 
+ NOTE: At least one W.D format was too small for the number to be printed. The decimal may be shifted by the "BEST" format.
+ NOTE: PROCEDURE UNIVARIATE used (Total process time):
+       real time           1.67 seconds
+       cpu time            0.48 seconds
+       
+ 
+ 177        
+ 178        OPTIONS NONOTES NOSTIMER NOSOURCE NOSYNTAXCHECK;
+ 191        
